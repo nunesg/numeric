@@ -2,6 +2,7 @@ from math import exp
 import gauss
 import copy
 import newton_input as config
+from gauss_input import GaussConfig
 
 # maps array of numbers (x) to array of values
 F = [
@@ -61,11 +62,9 @@ def newton(F, J, x0, modified=False, error1=0.1, error2=0.1, kmax=4):
             Jk = calc_J(J, x)
 
         b = list(map(lambda x: -x, calc_F(F, x)))
-        sk = gauss.Gauss({
-            "n": len(F),
-            "A": copy.deepcopy(Jk),
-            "b": b
-        }).run(pivoting=True)
+        
+        gaussObj = GaussConfig(n=len(F), A=copy.deepcopy(Jk), b=b)
+        sk = gauss.Gauss(gaussObj).run(pivoting=True)
 
         xi = list(map(lambda x, y: x+y, x, sk))
         distance = calc_abs_pair(x, xi)

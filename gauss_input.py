@@ -15,3 +15,9 @@ b = [
     3,
     -2
 ]
+
+class GaussConfig:
+    def __init__(self, n, A, b):
+        self.n = n
+        self.A = A
+        self.b = b
