@@ -1,19 +1,57 @@
 import json
 import copy
+import gauss_input as config
+
+
+def find_value(idx, A, b, val):
+    s = b[idx]
+    for i in range(idx+1, len(val)):
+        s += -A[idx][i] * val[i]
+    val[idx] = s / A[idx][idx]
+
+
+def solve_triangular(A, b):
+    n = len(A)
+    x = [0 for i in range(n)]
+    for i in range(n-1, -1, -1):
+        find_value(i, A, b, x)
+    return x
+
+
+def multiply(m1, m2):
+    for i in range(len(m2)):
+        if not isinstance(m2[i], list):
+            m2[i] = [m2[i]]
+    n = len(m1)
+    m = len(m2[0])
+    result = [[0 for i in range(m)] for j in range(n)]
+
+    for i in range(n):
+        for j in range(m):
+            for k in range(len(m1[i])):
+                print(
+                    f"result[{i}][{j}] += {m1[i][k]}*{m2[k][j]} = {m1[i][k]*m2[k][j]}")
+                result[i][j] += m1[i][k]*m2[k][j]
+    if m == 1:
+        result = [result[i][0] for i in range(n)]
+    return result
 
 
 class Gauss:
     def __init__(self, config):
-        self.n = config['n']
-        self.A = [config['A']]
-        self.b = [config['b']]
+        self.n = config.n
+        self.A = [config.A]
+        self.b = config.b
         self.I = [[1 if i == j else 0 for i in range(
             self.n)] for j in range(self.n)]
+
+        for i in range(self.n):
+            self.A[0][i].append(self.b[i])
 
         print(self.n)
         self.print_matrix(self.A[0])
         self.print_matrix(self.I, "I")
-        print(self.b)
+        print(f"b = {self.b}")
 
     def run(self, pivoting=False):
         print("---------- Executing Gauss Elimination Method ----------")
@@ -23,7 +61,6 @@ class Gauss:
             if pivoting:
                 self.do_pivoting(k-1)
             self.A.append(copy.deepcopy(self.A[k-1]))
-            self.b.append(copy.deepcopy(self.b[k-1]))
             print(f"Round {k}:\n")
             pivot = self.A[k-1][k-1][k-1]
             print(f"pivot: A{k-1}[{k}][{k}] = {pivot: .2f}")
@@ -34,7 +71,7 @@ class Gauss:
                 self.L[i][k-1] = mik
                 print(
                     f"  m{i+1}{k} = A{k-1}[{i+1}][{k}] / pivot = {self.A[k-1][i][k-1]: .2f} / {pivot: .2f} = {mik: .2f}")
-                for it in range(self.n):
+                for it in range(len(self.A[k][i])):
                     self.A[k][i][it] = self.A[k-1][i][it] - \
                         mik*self.A[k-1][k-1][it]
                     print(
@@ -49,6 +86,7 @@ class Gauss:
         self.print_matrix(self.A[k], f"U = A{k}")
         self.print_matrix(self.L, f"L")
         self.print_matrix(self.I, f"I")
+        return solve_triangular(self.A[k], [self.A[k][i][self.n] for i in range(self.n)])
 
     def do_pivoting(self, k):
         pivot_row_id = self.find_row_for_pivoting(k)
@@ -89,11 +127,8 @@ class Gauss:
 
 
 def main():
-    with open("gauss_input.json", "r") as read_file:
-        config = json.load(read_file)
-    print(config)
     g = Gauss(config)
-    g.run(pivoting=True)
+    print(f"x = {g.run(pivoting=True)}")
 
 
 if __name__ == "__main__":
