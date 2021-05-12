@@ -36,6 +36,25 @@ def multiply(m1, m2):
         result = [result[i][0] for i in range(n)]
     return result
 
+def print_matrix(mat, name="A0"):
+    print(f"{name}:")
+    print("[")
+    for row in mat:
+        s = ""
+        first = True
+        if isinstance(row, list):
+            for e in row:
+                if not first:
+                    s = s + f"  "
+                if e < 0:
+                    s = s + f"{e:.2f}"
+                else:
+                    s = s + f" {e:.2f}"
+                first = False
+        else:
+            s = f"{row:.4f}"
+        print(f"  [{s}],")
+    print("]")
 
 class Gauss:
     def __init__(self, config):
@@ -49,8 +68,8 @@ class Gauss:
             self.A[0][i].append(self.b[i])
 
         print(self.n)
-        self.print_matrix(self.A[0])
-        self.print_matrix(self.I, "I")
+        print_matrix(self.A[0])
+        print_matrix(self.I, "I")
         print(f"b = {self.b}")
 
     def run(self, pivoting=False):
@@ -79,13 +98,13 @@ class Gauss:
                     print(
                         f"  A{k-1}[{i+1}][{it+1}] = {self.A[k-1][i][it]: .2f} - {mik: .2f} * {self.A[k-1][k-1][it]: .2f} = {self.A[k][i][it]: .2f}")
                     print()
-            self.print_matrix(self.A[k], f"A{k}")
+            print_matrix(self.A[k], f"A{k}")
         for i in range(self.n):
             self.L[i][i] = 1.0
         print("-------------------")
-        self.print_matrix(self.A[k], f"U = A{k}")
-        self.print_matrix(self.L, f"L")
-        self.print_matrix(self.I, f"I")
+        print_matrix(self.A[k], f"U = A{k}")
+        print_matrix(self.L, f"L")
+        print_matrix(self.I, f"I")
         return solve_triangular(self.A[k], [self.A[k][i][self.n] for i in range(self.n)])
 
     def do_pivoting(self, k):
@@ -95,8 +114,8 @@ class Gauss:
             self.swap_lines(self.A[k], k, pivot_row_id)
             self.swap_lines(self.I, k, pivot_row_id)
             self.swap_lines(self.L, k, pivot_row_id)
-            self.print_matrix(self.A[k])
-            self.print_matrix(self.I, "I")
+            print_matrix(self.A[k])
+            print_matrix(self.I, "I")
 
     def find_row_for_pivoting(self, k):
         max_id = k
@@ -108,27 +127,12 @@ class Gauss:
     def swap_lines(self, mat, i, j):
         mat[i], mat[j] = mat[j], mat[i]
 
-    def print_matrix(self, mat, name="A0"):
-        print(f"{name}:")
-        print("[")
-        for row in mat:
-            s = ""
-            first = True
-            for e in row:
-                if not first:
-                    s = s + f"  "
-                if e < 0:
-                    s = s + f"{e:.2f}"
-                else:
-                    s = s + f" {e:.2f}"
-                first = False
-            print(f"  [{s}],")
-        print("]")
+    
 
 
 def main():
     g = Gauss(config)
-    print(f"x = {g.run(pivoting=True)}")
+    print_matrix(g.run(pivoting=True), "\n====== RESULT GAUSS")
 
 
 if __name__ == "__main__":

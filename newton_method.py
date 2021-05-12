@@ -56,29 +56,34 @@ def newton(F, J, x0, modified=False, error1=0.1, error2=0.1, kmax=4):
 
     print(
         f"======== Newton Method {'Modified' if modified else ''} =========\n")
-    for k in range(kmax):
+    for k in range(1, kmax+1):
         print(f"\n==== Newton Method iteration {k}")
         if not modified:
             Jk = calc_J(J, x)
 
         b = list(map(lambda x: -x, calc_F(F, x)))
         
+
         gaussObj = GaussConfig(n=len(F), A=copy.deepcopy(Jk), b=b)
         sk = gauss.Gauss(gaussObj).run(pivoting=True)
 
         xi = list(map(lambda x, y: x+y, x, sk))
         distance = calc_abs_pair(x, xi)
+        gauss.print_matrix(x, f"NEWTON: x{k-1}")
+        gauss.print_matrix(Jk, f"NEWTON: J(x{k-1})")
+        gauss.print_matrix(sk, f"NEWTON: s{k-1}")
+        gauss.print_matrix(b, f"NEWTON: -F(x{k-1})")
+        gauss.print_matrix(xi, f"NEWTON: x{k}")
         x = xi
         if calc_abs(b) < error1 or distance < error2:
             break
-    print(
-        f"======== RESULT: {x} =========\n")
+    gauss.print_matrix(x, f"\n====== RESULT NEWTON")
     return x
 
 
 def main():
-    print(newton(config.F, config.J, config.x0, config.modified,
-                 config.error1, config.error2, config.kmax))
+    newton(config.F, config.J, config.x0, config.modified,
+                 config.error1, config.error2, config.kmax)
 
 
 if __name__ == '__main__':
